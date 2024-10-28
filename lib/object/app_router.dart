@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:to_do_list/page/compte.dart';
 import 'package:to_do_list/page/connexion.dart';
 import 'package:to_do_list/page/enregistrer.dart';
 import 'package:to_do_list/page/home_page.dart';
@@ -19,5 +20,6 @@ class AppRouter {
       builder: (context, state) => const Enregistrer(),
     ),
     GoRoute(path: '/home_page', builder: (context, state) => const HomePage()),
+    GoRoute(path: '/compte', builder: (context, state) => const Compte()),
   ]);
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:to_do_list/object/user.dart';
 
 class Connexion extends StatefulWidget {
   const Connexion({super.key});
@@ -10,10 +12,27 @@ class Connexion extends StatefulWidget {
 }
 
 class _ConnexionState extends State<Connexion> {
+  late User user;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    user = User(nom: '', email: '', passWord: '');
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      user.nom = prefs.getString('nom') ?? '';
+      user.email = prefs.getString('email') ?? '';
+      user.passWord = prefs.getString('password') ?? '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,10 +123,17 @@ class _ConnexionState extends State<Connexion> {
                 width: double.infinity,
                 height: 60,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Connexion réussie')));
+                      if (_emailController.text == user.email &&
+                          _passwordController.text == user.passWord) {
+                        context.go('/');
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Email ou mot de passe incorrect')),
+                        );
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -123,9 +149,7 @@ class _ConnexionState extends State<Connexion> {
                   ),
                 ),
               ),
-              const SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 30),
               GestureDetector(
                 onTap: () {
                   context.go('/enregistrer');

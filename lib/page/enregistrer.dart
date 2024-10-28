@@ -140,6 +140,8 @@ class _EnregistrerState extends State<Enregistrer> {
                       await prefs.setString('email', user.email);
                       await prefs.setString(
                           'password', _passwordController.text);
+                      // ignore: use_build_context_synchronously
+                      context.go('/');
                     }
                   },
                   style: ElevatedButton.styleFrom(

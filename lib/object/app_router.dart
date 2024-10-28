@@ -5,7 +5,7 @@ import 'package:to_do_list/page/home_page.dart';
 import 'package:to_do_list/page/welcome.dart';
 
 class AppRouter {
-  final GoRouter router = GoRouter(routes: [
+  final GoRouter router = GoRouter(initialLocation: '/', routes: [
     GoRoute(
       path: '/',
       builder: (context, state) => const Welcome(),

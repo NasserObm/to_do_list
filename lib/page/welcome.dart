@@ -15,11 +15,9 @@ class _WelcomeState extends State<Welcome> {
   @override
   void initState() {
     super.initState();
-/*
     Timer(const Duration(seconds: 3), () {
       context.go('/connexion');
     });
-    */
   }
 
   @override
@@ -38,11 +36,12 @@ class _WelcomeState extends State<Welcome> {
         children: [
           Text(
             'ToDo-List',
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.courgette(
                 color: const Color(0xff000000),
-                fontSize: 35,
+                fontSize: 55,
                 fontWeight: FontWeight.bold),
-          )
+          ),
+          Image.asset(width: 70, height: 70, 'assets/img/cahier.png')
         ],
       ),
     ));

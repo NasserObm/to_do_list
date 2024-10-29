@@ -55,7 +55,10 @@ class _WelcomeState extends State<Welcome> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Image.asset('assets/img/cahier.png', width: 70, height: 70),
+            SizedBox(
+                width: 70,
+                height: 70,
+                child: Image.asset('assets/img/cahier.png')),
           ],
         ),
       ),

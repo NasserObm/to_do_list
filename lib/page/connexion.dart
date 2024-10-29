@@ -25,9 +25,6 @@ class _ConnexionState extends State<Connexion> {
   @override
   void initState() {
     super.initState();
-    user = User(nom: '', email: '', passWord: '');
-    // Chargement des données utilisateur au démarrage
-    Future.delayed(const Duration(seconds: 1), _loadUserData);
   }
 
   Future<bool> connexion(String email, String password) async {
@@ -53,8 +50,8 @@ class _ConnexionState extends State<Connexion> {
         print("Connexion réussie : ${data['user']} , ${data['accessToken']}");
 
         final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('nom', jsonEncode(data['user']['nom']));
-        await prefs.setString('email', jsonEncode(data['user']['email']));
+        await prefs.setString('nom', data['user']['nom']);
+        await prefs.setString('email', data['user']['email']);
         await prefs.setString('accessToken', data['acessToken']);
         print("Données utilisateur et accessToken sauvegardés");
 
@@ -70,27 +67,6 @@ class _ConnexionState extends State<Connexion> {
           const SnackBar(content: Text("Une erreur s'est produite.")));
       print('Erreur lors de la requête : $error');
       return false;
-    }
-  }
-
-  Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userData = prefs.getString('user');
-
-    if (userData != null) {
-      try {
-        final decodedUser = jsonDecode(userData) as Map<String, dynamic>;
-        setState(() {
-          user.nom = decodedUser['nom'] ?? '';
-          user.email = decodedUser['email'] ?? '';
-          user.passWord = decodedUser['password'] ?? '';
-        });
-        print("Données utilisateur chargées : $decodedUser");
-      } catch (e) {
-        print("Erreur lors du décodage des données utilisateur : $e");
-      }
-    } else {
-      print("Aucune donnée utilisateur trouvée dans SharedPreferences");
     }
   }
 

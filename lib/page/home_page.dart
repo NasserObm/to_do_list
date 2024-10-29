@@ -84,8 +84,8 @@ class _HomePageState extends State<HomePage> {
 
   // Méthode pour ajouter une nouvelle tâche
   Future<void> _addTask(String taskName) async {
-    final url = Uri.parse(
-        'https://todolist-api-production-1e59.up.railway.app/task'); // Remplace API_URL par l'URL de l'API pour créer une tâche
+    final url =
+        Uri.parse('https://todolist-api-production-1e59.up.railway.app/task');
     final body = jsonEncode({'name': taskName});
     final token = await getToken();
     if (token == null) {
@@ -114,7 +114,7 @@ class _HomePageState extends State<HomePage> {
   // Méthode pour modifier une tâche par son ID
   Future<void> _updateTask(int taskId, String updatedName) async {
     final url = Uri.parse(
-        'https://todolist-api-production-1e59.up.railway.app/task/$taskId'); // Remplace API_URL par l'URL de l'API pour modifier une tâche
+        'https://todolist-api-production-1e59.up.railway.app/task/$taskId');
     final body = jsonEncode({'name': updatedName});
     final token = await getToken();
     if (token == null) {
@@ -143,7 +143,7 @@ class _HomePageState extends State<HomePage> {
   // Méthode pour supprimer une tâche par son ID
   Future<void> _deleteTask(int taskId) async {
     final url = Uri.parse(
-        'https://todolist-api-production-1e59.up.railway.app/task/$taskId'); // Remplace API_URL par l'URL de l'API pour supprimer une tâche
+        'https://todolist-api-production-1e59.up.railway.app/task/$taskId');
     final token = await getToken();
     if (token == null) {
       print("Aucun Token trouver");

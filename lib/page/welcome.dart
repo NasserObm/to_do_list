@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -23,7 +25,7 @@ class _WelcomeState extends State<Welcome> {
     final hasAccount = prefs.getBool('hasAccount') ?? false;
 
     Timer(const Duration(seconds: 5), () {
-      context.go('/home_page');
+      context.go('/connexion');
     });
   }
 

@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, sort_child_properties_last
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -27,6 +29,11 @@ class _HomePageState extends State<HomePage> {
     _fetchTasks();
   }
 
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('acessToken');
+  }
+
   // Méthode pour charger les informations de l'utilisateur
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -49,10 +56,18 @@ class _HomePageState extends State<HomePage> {
 
   // Méthode pour récupérer la liste des tâches
   Future<void> _fetchTasks() async {
-    final url = Uri.parse(
-        'https://todolist-api-production-1e59.up.railway.app/task'); // Remplace API_URL par l'URL de l'API pour obtenir les tâches
+    final url =
+        Uri.parse('https://todolist-api-production-1e59.up.railway.app/task');
+    final token = await getToken();
+    if (token == null) {
+      print("Aucun Token trouver");
+      return;
+    }
     try {
-      final response = await http.get(url);
+      final response = await http.get(url, headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      });
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List;
         setState(() {
@@ -72,10 +87,19 @@ class _HomePageState extends State<HomePage> {
     final url = Uri.parse(
         'https://todolist-api-production-1e59.up.railway.app/task'); // Remplace API_URL par l'URL de l'API pour créer une tâche
     final body = jsonEncode({'name': taskName});
+    final token = await getToken();
+    if (token == null) {
+      print("Aucun Token trouver");
+      return;
+    }
 
     try {
       final response = await http.post(url,
-          headers: {'Content-Type': 'application/json'}, body: body);
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token'
+          },
+          body: body);
       if (response.statusCode == 201) {
         _fetchTasks();
         _taskController.clear();
@@ -92,10 +116,19 @@ class _HomePageState extends State<HomePage> {
     final url = Uri.parse(
         'https://todolist-api-production-1e59.up.railway.app/task/$taskId'); // Remplace API_URL par l'URL de l'API pour modifier une tâche
     final body = jsonEncode({'name': updatedName});
+    final token = await getToken();
+    if (token == null) {
+      print("Aucun Token trouver");
+      return;
+    }
 
     try {
       final response = await http.put(url,
-          headers: {'Content-Type': 'application/json'}, body: body);
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token'
+          },
+          body: body);
       if (response.statusCode == 200) {
         _fetchTasks();
       } else {
@@ -111,9 +144,16 @@ class _HomePageState extends State<HomePage> {
   Future<void> _deleteTask(int taskId) async {
     final url = Uri.parse(
         'https://todolist-api-production-1e59.up.railway.app/task/$taskId'); // Remplace API_URL par l'URL de l'API pour supprimer une tâche
-
+    final token = await getToken();
+    if (token == null) {
+      print("Aucun Token trouver");
+      return;
+    }
     try {
-      final response = await http.delete(url);
+      final response = await http.delete(url, headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      });
       if (response.statusCode == 200) {
         _fetchTasks();
       } else {

@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print
 
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,13 +26,15 @@ class _ConnexionState extends State<Connexion> {
   void initState() {
     super.initState();
     user = User(nom: '', email: '', passWord: '');
-    _loadUserData();
+    // Ajout d'un délai pour charger les données après le démarrage
+    Future.delayed(const Duration(seconds: 1), _loadUserData);
   }
 
   Future<void> saveUserData(Map<String, dynamic> user, String token) async {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.setString('user', jsonEncode(user));
     await preferences.setString('accessToken', token);
+    print("Données utilisateur sauvegardées : $user et accessToken : $token");
   }
 
   Future<bool> connexion(String email, String password) async {
@@ -53,18 +54,16 @@ class _ConnexionState extends State<Connexion> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        print(data['user& ']);
+        print("Connexion réussie : ${data['user']}");
         await saveUserData(data['user'], data['acessToken']);
         return true;
       } else {
-        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Erreur détectée lors de la connection")));
+            content: Text("Erreur détectée lors de la connexion")));
         print('Erreur de réponse : ${response.statusCode} ${response.body}');
         return false;
       }
     } catch (error) {
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Une erreur s'est produite.")));
       print('Erreur lors de la requête : $error');
@@ -84,6 +83,7 @@ class _ConnexionState extends State<Connexion> {
           user.email = decodedUser['email'] ?? '';
           user.passWord = decodedUser['password'] ?? '';
         });
+        print("Données utilisateur chargées : $decodedUser");
       } catch (e) {
         print("Erreur lors du décodage des données utilisateur : $e");
       }
@@ -183,12 +183,9 @@ class _ConnexionState extends State<Connexion> {
                 child: ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
-                      connexion(
-                          _emailController.text, _passwordController.text);
                       bool success = await connexion(
                           _emailController.text, _passwordController.text);
                       if (success) {
-                        // ignore: use_build_context_synchronously
                         context.go('/home_page');
                       }
                     }

@@ -15,12 +15,6 @@ class Enregistrer extends StatefulWidget {
 }
 
 class _EnregistrerState extends State<Enregistrer> {
-  Future<void> saveUserData(Map<String, dynamic> user, String token) async {
-    final SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setString('user', jsonEncode(user));
-    await preferences.setString('token', token);
-  }
-
   Future<bool> registre(String nom, String email, String password) async {
     final url = Uri.parse(
         'https://todolist-api-production-1e59.up.railway.app/auth/inscription');
@@ -39,7 +33,10 @@ class _EnregistrerState extends State<Enregistrer> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        if (data['success']) {
+        print(data);
+
+        return true;
+        /* if (data['success']) {
           await saveUserData(data['user'], data['user']);
           // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(
@@ -52,7 +49,7 @@ class _EnregistrerState extends State<Enregistrer> {
               .showSnackBar(SnackBar(content: Text(data['message'])));
           print('Erreur : compte non créé');
           return false;
-        }
+        }*/
       } else {
         // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

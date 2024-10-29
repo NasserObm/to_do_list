@@ -23,11 +23,7 @@ class _WelcomeState extends State<Welcome> {
     final hasAccount = prefs.getBool('hasAccount') ?? false;
 
     Timer(const Duration(seconds: 5), () {
-      if (hasAccount) {
-        context.go('/home_page');
-      } else {
-        context.go('/connexion');
-      }
+      context.go('/home_page');
     });
   }
 

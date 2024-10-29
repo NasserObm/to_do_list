@@ -1,8 +1,13 @@
+// ignore_for_file: avoid_print
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list/object/user.dart';
+import 'package:http/http.dart' as http;
 
 class Connexion extends StatefulWidget {
   const Connexion({super.key});
@@ -25,13 +30,66 @@ class _ConnexionState extends State<Connexion> {
     _loadUserData();
   }
 
+  Future<void> saveUserData(Map<String, dynamic> user, String token) async {
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setString('user', jsonEncode(user));
+    await preferences.setString('accessToken', token);
+  }
+
+  Future<bool> connexion(String email, String password) async {
+    final url = Uri.parse(
+        'https://todolist-api-production-1e59.up.railway.app/auth/connexion');
+    final body = jsonEncode({
+      'email': email,
+      'password': password,
+    });
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: body,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        print(data['user& ']);
+        await saveUserData(data['user'], data['acessToken']);
+        return true;
+      } else {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("Erreur détectée lors de la connection")));
+        print('Erreur de réponse : ${response.statusCode} ${response.body}');
+        return false;
+      }
+    } catch (error) {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Une erreur s'est produite.")));
+      print('Erreur lors de la requête : $error');
+      return false;
+    }
+  }
+
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      user.nom = prefs.getString('nom') ?? '';
-      user.email = prefs.getString('email') ?? '';
-      user.passWord = prefs.getString('password') ?? '';
-    });
+    final userData = prefs.getString('user');
+
+    if (userData != null) {
+      try {
+        final decodedUser = jsonDecode(userData) as Map<String, dynamic>;
+        setState(() {
+          user.nom = decodedUser['nom'] ?? '';
+          user.email = decodedUser['email'] ?? '';
+          user.passWord = decodedUser['password'] ?? '';
+        });
+      } catch (e) {
+        print("Erreur lors du décodage des données utilisateur : $e");
+      }
+    } else {
+      print("Aucune donnée utilisateur trouvée dans SharedPreferences");
+    }
   }
 
   @override
@@ -125,14 +183,13 @@ class _ConnexionState extends State<Connexion> {
                 child: ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
-                      if (_emailController.text == user.email &&
-                          _passwordController.text == user.passWord) {
-                        context.go('/');
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Email ou mot de passe incorrect')),
-                        );
+                      connexion(
+                          _emailController.text, _passwordController.text);
+                      bool success = await connexion(
+                          _emailController.text, _passwordController.text);
+                      if (success) {
+                        // ignore: use_build_context_synchronously
+                        context.go('/home_page');
                       }
                     }
                   },

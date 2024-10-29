@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -26,20 +26,14 @@ class _ConnexionState extends State<Connexion> {
   void initState() {
     super.initState();
     user = User(nom: '', email: '', passWord: '');
-    // Ajout d'un délai pour charger les données après le démarrage
+    // Chargement des données utilisateur au démarrage
     Future.delayed(const Duration(seconds: 1), _loadUserData);
-  }
-
-  Future<void> saveUserData(Map<String, dynamic> user, String token) async {
-    final SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setString('user', jsonEncode(user));
-    await preferences.setString('accessToken', token);
-    print("Données utilisateur sauvegardées : $user et accessToken : $token");
   }
 
   Future<bool> connexion(String email, String password) async {
     final url = Uri.parse(
         'https://todolist-api-production-1e59.up.railway.app/auth/connexion');
+
     final body = jsonEncode({
       'email': email,
       'password': password,
@@ -48,14 +42,22 @@ class _ConnexionState extends State<Connexion> {
     try {
       final response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: body,
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        print("Connexion réussie : ${data['user']}");
-        await saveUserData(data['user'], data['acessToken']);
+        print("Connexion réussie : ${data['user']} , ${data['accessToken']}");
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('nom', jsonEncode(data['user']['nom']));
+        await prefs.setString('email', jsonEncode(data['user']['email']));
+        await prefs.setString('accessToken', data['acessToken']);
+        print("Données utilisateur et accessToken sauvegardés");
+
         return true;
       } else {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -185,8 +187,10 @@ class _ConnexionState extends State<Connexion> {
                     if (_formKey.currentState?.validate() ?? false) {
                       bool success = await connexion(
                           _emailController.text, _passwordController.text);
-                      if (success) {
+                      if (success == true) {
                         context.go('/home_page');
+                      } else {
+                        print('pb');
                       }
                     }
                   },
